@@ -1,6 +1,8 @@
 # Knapsack Solver by branch and bound 
 # developer : @PercevalNSC
 
+# complete basis function, but not enough checking and comment
+
 class KnapackSolve
     def initialize(itemCosts, itemWeights, knapsackWeight)
         @itemCosts = itemCosts
