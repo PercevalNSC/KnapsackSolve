@@ -18,16 +18,42 @@ class KnapackSolve
         @provisionalSolution = fp.optimalSolutionFloor
 
         # step2: compare Floor and Ceiling, and branch at first
+        if fp.optimalSolutionFloor == fp.optimalSolutionCeiling then
+            return
+        else
+            index = 1
+            for i in 0..1
+                newSubProblem = [[index, i]]
+                @problems.push(newSubProblem)
+            end
+            puts @problems.to_s
+        end
 
         # step3: pick subproblem
+        while @problems.length != 0
+            subproblem = @problems.pop
+            puts "subproblem: " + subproblem.to_s
 
-        # step4: Ceiling solution <= provisional Solution
+            sp = constructSubProblem(subproblem)
+            sp.solve()
+
+            # step4: Ceiling solution <= provisional Solution
+            if sp.optimalSolutionCeiling <= @provisionalSolution then next end
+
+            # step5: Floor solution > provisional solition
+            if sp.optimalSolutionFloor > @provisionalSolution then
+                @provisionalX = constructX(subproblem, sp.xFloor)
+                @constructSubProblem = sp.optimalSolutionFloor + self.differentFunction(subproblem)
+            end
+
+            # step6: Floor solution == Ceiling solution
+            if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next end
+
+            # step7: branch
+            self.branch(subproblem)
+        end
+        return
         
-        # step5: Floor solution > provisional solition
-
-        # step6: Floor solution == Ceiling solution
-
-        # step7: branch
     end
     # 分枝での変数選択
     def selectval(subproblem)
@@ -54,12 +80,49 @@ class KnapackSolve
         end
         return result
     end
+    def constructSubProblem(subproblem)
+        subcosts = @itemCosts.clone
+        subweights = @itemWeights.clone
+        subkpweight = @knapsackWeight
+        subproblem.each do |sub|
+            subkpweight -= subweights[sub[0]-1]*sub[1]
+            subcosts.delete_at(sub[0]-1)
+            subweights.delete_at(sub[0]-1)
+        end
+        return LPsolve.new(subcosts, subweights, subkpweight)
+    end
+    def constructX(subproblem, subx)
+        resultx = Array.new()
+        for i in 0 .. @itemCosts.length-1
+            flag = 0
+            subproblem.each do |sub|
+                if sub[0] == i then
+                    resultx.push(sub[1])
+                    flag = 1
+                    break
+                end
+            end
+            if flag == 0 then
+                resultx.push(subx.shift)
+            end
+        end
+        return resultx
+    end
+
+    def branch(subproblem)
+        index = selectval(subproblem)
+        for i in 0..1
+            newSubProblem = subproblem.clone
+            newSubProblem.push([index, i])
+            @problems.push(newSubProblem)
+        end
+    end
     def printStatus
         puts "------"
         puts "itemCosts     : " + @itemCosts.to_s
         puts "itemWeights   : " + @itemWeights.to_s
         puts "knapsackWeight: " + @knapsackWeight.to_s
-        puts "----"
+        puts "---"
         puts "x: " + @provisionalX.to_s
         puts "optimalSolution: " + @provisionalSolution.to_s
         puts "------"
@@ -96,6 +159,7 @@ class LPsolve
         end
         @optimalSolutionCeiling = self.calculateOptimalSolution(@xCeiling)
         @optimalSolutionFloor = self.calculateOptimalSolution(@xFloor)
+        self.printStatus()
     end
     # アイテムの重量の和がナップサックの容量を初めて超える添え字を返す
     def pickL
@@ -108,7 +172,7 @@ class LPsolve
                 return index
             end
         end
-        return 0
+        return index+1
     end
     # i == lのときのxの値を返す
     def xL(l)
@@ -132,7 +196,7 @@ class LPsolve
         puts "itemCosts     : " + @itemCosts.to_s
         puts "itemWeights   : " + @itemWeights.to_s
         puts "knapsackWeight: " + @knapsackWeight.to_s
-        puts "----"
+        puts "---"
         if @xCeiling.length == 0 then
             puts "this problem is not solved yet"
         else
@@ -157,11 +221,4 @@ if __FILE__ == $0
 
     kpsolve.solve()
     kpsolve.printStatus()
-
-    lp = LPsolve.new(itemCosts, itemWeights, knapsackWeight)
-    lp.solve()
-    lp.printStatus()
 end
-
-
-
