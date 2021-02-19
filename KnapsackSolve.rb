@@ -35,6 +35,7 @@ class KnapackSolve
     end
 end
 
+# LP緩和問題を解くクラス
 class ProblemSolve
     attr_reader :xCeiling, :xFloor, :optimalSolutionCeiling, :optimalSolutionFloor
     def initialize(itemCosts, itemWeights, knapsackWeight)
@@ -45,6 +46,25 @@ class ProblemSolve
         @xFloor = Array.new()
         @optimalSolutionCeiling = 0
         @optimalSolutionFloor = 0
+    end
+    # LP緩和問題を解いて、xCeiling, xFloor, optimalSolutionCeiling, optimalSolutionFloorを格納する
+    def solve
+        l = self.pickL()
+        for i in 1 .. @itemCosts.length
+            if i < l then
+                @xCeiling.push(1)
+                @xFloor.push(1)
+            elsif i == l then
+                xl = xL(l)
+                @xCeiling.push(xl)
+                @xFloor.push(xl.floor)
+            else
+                @xCeiling.push(0)
+                @xFloor.push(0)
+            end
+        end
+        @optimalSolutionCeiling = self.calculateOptimalSolution(@xCeiling)
+        @optimalSolutionFloor = self.calculateOptimalSolution(@xFloor)
     end
     # アイテムの重量の和がナップサックの容量を初めて超える添え字を返す
     def pickL
@@ -59,6 +79,40 @@ class ProblemSolve
         end
         return 0
     end
+    # i == lのときのxの値を返す
+    def xL(l)
+        result = @knapsackWeight
+        for i in 1 .. l-1
+            result -= @itemWeights[i-1]
+        end
+        return result.to_f / @itemWeights[l-1]
+    end
+    #　最適解の配列xから目的関数値を返す
+    def calculateOptimalSolution(x)
+        result = 0
+        for i in 0 .. x.length-1
+            result += @itemCosts[i]*x[i]
+        end
+        return result
+    end
+
+    def printStatus
+        puts "------"
+        puts "itemCosts     : " + @itemCosts.to_s
+        puts "itemWeights   : " + @itemWeights.to_s
+        puts "knapsackWeight: " + @knapsackWeight.to_s
+        puts "----"
+        if @xCeiling.length == 0 then
+            puts "this problem is not solved yet"
+        else
+            puts "this problem is solved"
+        end
+        puts "xCeiling: " + @xCeiling.to_s
+        puts "xFloor  : " + @xFloor.to_s
+        puts "optimalSolutionCeiling: " + @optimalSolutionCeiling.to_s
+        puts "optimalSolutionFloor  : " + @optimalSolutionFloor.to_s
+        puts "------"
+    end
 
 end
 
@@ -66,7 +120,7 @@ end
 if __FILE__ == $0
     itemCosts = [3, 5, 7, 4, 10]
     itemWeights = [1, 2, 3, 2, 5]
-    knapsackWeight = 14
+    knapsackWeight = 9
 
     kpsolve = KnapackSolve.new(itemCosts, itemWeights, knapsackWeight)
 
@@ -75,7 +129,9 @@ if __FILE__ == $0
     puts kpsolve.differentFunction(subproblem)
 
     ps = ProblemSolve.new(itemCosts, itemWeights, knapsackWeight)
-    puts ps.pickL()
+    ps.printStatus()
+    ps.solve()
+    ps.printStatus()
 end
 
 
