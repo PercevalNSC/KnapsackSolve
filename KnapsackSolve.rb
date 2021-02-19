@@ -26,7 +26,7 @@ class KnapackSolve
         @provisionalX = fp.xFloor.clone
         @provisionalSolution = fp.optimalSolutionFloor
 
-        # step2: compare Floor and Ceiling, and branch at first
+        # step2
         if fp.optimalSolutionFloor == fp.optimalSolutionCeiling then
             return
         else
@@ -46,24 +46,21 @@ class KnapackSolve
             sp = constructSubProblem(subproblem)
             sp.solve()
 
-            # step4: Ceiling solution <= provisional Solution
             if sp.optimalSolutionCeiling <= @provisionalSolution then next end
 
-            # step5: Floor solution > provisional solition
             if sp.optimalSolutionFloor > @provisionalSolution then
                 @provisionalX = constructX(subproblem, sp.xFloor)
                 @constructSubProblem = sp.optimalSolutionFloor + self.differentFunction(subproblem)
             end
 
-            # step6: Floor solution == Ceiling solution
-            if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next end
+            if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next en
 
-            # step7: branch
             self.branch(subproblem)
         end
         return
         
     end
+
     # 分枝での変数選択
     def selectval(subproblem)
         for i in 1 .. @itemCosts.length 
