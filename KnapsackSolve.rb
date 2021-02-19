@@ -3,6 +3,13 @@
 
 # complete basis function, but not enough checking and comment
 
+# TODO: checking variables for fatal error
+# TODO: add comment for some methods
+# FEATURE: fix searching subproblem in selectval and constructX
+# FEATURE: merge @itemcosts and @itemweights to one array
+# FEATURE: fix name of some variables and methods
+
+
 class KnapackSolve
     def initialize(itemCosts, itemWeights, knapsackWeight)
         @itemCosts = itemCosts
