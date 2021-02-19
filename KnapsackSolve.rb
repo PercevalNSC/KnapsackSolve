@@ -3,15 +3,17 @@
 
 # complete basis function, but not enough checking and comment
 
-# TODO: checking variables for fatal error
 # TODO: add comment for some methods
 # FEATURE: fix searching subproblem in selectval and constructX
 # FEATURE: merge @itemcosts and @itemweights to one array
 # FEATURE: fix name of some variables and methods
+# FEATURE: sorting input
 
 
 class KnapackSolve
     def initialize(itemCosts, itemWeights, knapsackWeight)
+        inputCheck(itemCosts, itemWeights, knapsackWeight)
+
         @itemCosts = itemCosts
         @itemWeights = itemWeights
         @knapsackWeight = knapsackWeight
@@ -46,22 +48,40 @@ class KnapackSolve
             sp = constructSubProblem(subproblem)
             sp.solve()
 
+            # bound
             if sp.optimalSolutionCeiling <= @provisionalSolution then next end
-
             if sp.optimalSolutionFloor > @provisionalSolution then
                 @provisionalX = constructX(subproblem, sp.xFloor)
                 @constructSubProblem = sp.optimalSolutionFloor + self.differentFunction(subproblem)
             end
-
             if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next en
 
             self.branch(subproblem)
         end
         return
-        
+    end
+    def inputCheck(itemCosts, itemWeights, knapsackWeight)
+        if itemCosts.length != itemWeights.length then
+            puts "Input Error: different length of itemCosts and itemWeights"
+            exit
+        end
+        for i in 0 .. itemCosts.length - 1
+            if itemCosts[i] <= 0 then
+                puts "Input Error: itemCosts need number > 0"
+            end
+            if itemWeights[i] <= 0 then
+                puts "Input Error: itemWeights need number > 0"
+            end
+            exit
+        end
+        if knapsackWeight < 0 then
+            puts "Input Error: knapsack weight need > 0"
+            exit
+        end
     end
 
     # 分枝での変数選択
+    # 選べないときには0を返す
     def selectval(subproblem)
         for i in 1 .. @itemCosts.length 
             flag = 0
@@ -86,6 +106,7 @@ class KnapackSolve
         end
         return result
     end
+    # subproblemで既知の変数を除いた小さいLP緩和問題を返す
     def constructSubProblem(subproblem)
         subcosts = @itemCosts.clone
         subweights = @itemWeights.clone
@@ -97,6 +118,7 @@ class KnapackSolve
         end
         return LPsolve.new(subcosts, subweights, subkpweight)
     end
+    # 小問題では既知の変数が出てこないため、既知の変数とLP緩和問題の解を合わせて解を作成する
     def constructX(subproblem, subx)
         resultx = Array.new()
         for i in 0 .. @itemCosts.length-1
@@ -114,7 +136,7 @@ class KnapackSolve
         end
         return resultx
     end
-
+    # 分枝操作、変数を選んで0と1それぞれについて問題集合Problemsに格納する
     def branch(subproblem)
         index = selectval(subproblem)
         for i in 0..1
@@ -214,7 +236,6 @@ class LPsolve
         puts "optimalSolutionFloor  : " + @optimalSolutionFloor.to_s
         puts "------"
     end
-
 end
 
 # ---- test ----
