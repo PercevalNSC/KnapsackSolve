@@ -2,10 +2,10 @@
 # developer : @PercevalNSC
 
 class KnapackSolve
-    def initialize(itemCosts, itemWeights, knapsacWeight)
+    def initialize(itemCosts, itemWeights, knapsackWeight)
         @itemCosts = itemCosts
         @itemWeights = itemWeights
-        @knapsacWeight = knapsacWeight
+        @knapsackWeight = knapsackWeight
         @problems = Array.new()
     end
     def selectval(subproblem)
@@ -31,17 +31,29 @@ class KnapackSolve
         end
         return result
     end
+end
 
-
+class ProblemSolve
+    attr_reader :xCeiling, :xFloor, :optimalSolutionCeiling, :optimalSolutionFloor
+    def initialize(itemCosts, itemWeights, knapsacWeight)
+        @itemCosts = itemCosts
+        @itemWeights = itemWeights
+        @knapsackWeight = knapsackWeight
+        @xCeiling = Array.new()
+        @xFloor = Array.new()
+        @optimalSolutionCeiling = 0
+        @optimalSolutionFloor = 0
+    end
 end
 
 # ---- test ----
 
 itemCosts = [3, 5, 7, 4, 10]
 itemWeights = [1, 2, 3, 2, 5]
-knapsacWeight = 9
+knapsackWeight = 9
 
-kpsolve = KnapackSolve.new(itemCosts, itemWeights, itemWeights)
+kpsolve = KnapackSolve.new(itemCosts, itemWeights, knapsackWeight)
+
 subproblem = [[1, 0], [2, 1]]
 puts kpsolve.selectval(subproblem)
 puts kpsolve.differentFunction(subproblem)
