@@ -7,6 +7,27 @@ class KnapackSolve
         @itemWeights = itemWeights
         @knapsackWeight = knapsackWeight
         @problems = Array.new()
+        @provisionalX = Array.new()
+        @provisionalSolution = 0
+    end
+    def solve
+        # step1: solve initial problem
+        fp = LPsolve.new(@itemCosts, @itemWeights, @knapsackWeight)
+        fp.solve()
+        @provisionalX = fp.xFloor.clone
+        @provisionalSolution = fp.optimalSolutionFloor
+
+        # step2: compare Floor and Ceiling, and branch at first
+
+        # step3: pick subproblem
+
+        # step4: Ceiling solution <= provisional Solution
+        
+        # step5: Floor solution > provisional solition
+
+        # step6: Floor solution == Ceiling solution
+
+        # step7: branch
     end
     # 分枝での変数選択
     def selectval(subproblem)
@@ -33,10 +54,20 @@ class KnapackSolve
         end
         return result
     end
+    def printStatus
+        puts "------"
+        puts "itemCosts     : " + @itemCosts.to_s
+        puts "itemWeights   : " + @itemWeights.to_s
+        puts "knapsackWeight: " + @knapsackWeight.to_s
+        puts "----"
+        puts "x: " + @provisionalX.to_s
+        puts "optimalSolution: " + @provisionalSolution.to_s
+        puts "------"
+    end
 end
 
 # LP緩和問題を解くクラス
-class ProblemSolve
+class LPsolve
     attr_reader :xCeiling, :xFloor, :optimalSolutionCeiling, :optimalSolutionFloor
     def initialize(itemCosts, itemWeights, knapsackWeight)
         @itemCosts = itemCosts
@@ -124,14 +155,12 @@ if __FILE__ == $0
 
     kpsolve = KnapackSolve.new(itemCosts, itemWeights, knapsackWeight)
 
-    subproblem = [[1, 0], [2, 1]]
-    puts kpsolve.selectval(subproblem)
-    puts kpsolve.differentFunction(subproblem)
+    kpsolve.solve()
+    kpsolve.printStatus()
 
-    ps = ProblemSolve.new(itemCosts, itemWeights, knapsackWeight)
-    ps.printStatus()
-    ps.solve()
-    ps.printStatus()
+    lp = LPsolve.new(itemCosts, itemWeights, knapsackWeight)
+    lp.solve()
+    lp.printStatus()
 end
 
 
