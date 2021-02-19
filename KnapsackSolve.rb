@@ -47,14 +47,17 @@ class ProblemSolve
 end
 
 # ---- test ----
+if __FILE__ == $0
+    itemCosts = [3, 5, 7, 4, 10]
+    itemWeights = [1, 2, 3, 2, 5]
+    knapsackWeight = 9
 
-itemCosts = [3, 5, 7, 4, 10]
-itemWeights = [1, 2, 3, 2, 5]
-knapsackWeight = 9
+    kpsolve = KnapackSolve.new(itemCosts, itemWeights, knapsackWeight)
 
-kpsolve = KnapackSolve.new(itemCosts, itemWeights, knapsackWeight)
+    subproblem = [[1, 0], [2, 1]]
+    puts kpsolve.selectval(subproblem)
+    puts kpsolve.differentFunction(subproblem)
+end
 
-subproblem = [[1, 0], [2, 1]]
-puts kpsolve.selectval(subproblem)
-puts kpsolve.differentFunction(subproblem)
+
 
