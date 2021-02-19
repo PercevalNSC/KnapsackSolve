@@ -37,13 +37,13 @@ class KnapackSolve
                 newSubProblem = [[index, i]]
                 @problems.push(newSubProblem)
             end
-            puts @problems.to_s
+            # puts @problems.to_s
         end
 
         # step3: pick subproblem
         while @problems.length != 0
             subproblem = @problems.pop
-            puts "subproblem: " + subproblem.to_s
+            # puts "subproblem: " + subproblem.to_s
 
             sp = constructSubProblem(subproblem)
             sp.solve()
@@ -54,7 +54,7 @@ class KnapackSolve
                 @provisionalX = constructX(subproblem, sp.xFloor)
                 @constructSubProblem = sp.optimalSolutionFloor + self.differentFunction(subproblem)
             end
-            if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next en
+            if sp.optimalSolutionFloor == sp.optimalSolutionCeiling then next end
 
             self.branch(subproblem)
         end
@@ -68,11 +68,12 @@ class KnapackSolve
         for i in 0 .. itemCosts.length - 1
             if itemCosts[i] <= 0 then
                 puts "Input Error: itemCosts need number > 0"
+                exit
             end
             if itemWeights[i] <= 0 then
                 puts "Input Error: itemWeights need number > 0"
+                exit
             end
-            exit
         end
         if knapsackWeight < 0 then
             puts "Input Error: knapsack weight need > 0"
@@ -187,7 +188,7 @@ class LPsolve
         end
         @optimalSolutionCeiling = self.calculateOptimalSolution(@xCeiling)
         @optimalSolutionFloor = self.calculateOptimalSolution(@xFloor)
-        self.printStatus()
+        # self.printStatus()
     end
     # アイテムの重量の和がナップサックの容量を初めて超える添え字を返す
     def pickL
