@@ -24,6 +24,14 @@ class KnapackSolve
         puts "no selectable variable"
         return 0
     end
+    def differentFunction(subproblem)
+        result = 0
+        subproblem.each do |sub|
+            result += @itemCosts[sub[0]-1] * sub[1]
+        end
+        return result
+    end
+
 
 end
 
@@ -34,6 +42,7 @@ itemWeights = [1, 2, 3, 2, 5]
 knapsacWeight = 9
 
 kpsolve = KnapackSolve.new(itemCosts, itemWeights, itemWeights)
-subproblem = [[1, 0], [2, 1], [3, 0], [4, 1], [5,1]]
+subproblem = [[1, 0], [2, 1]]
 puts kpsolve.selectval(subproblem)
+puts kpsolve.differentFunction(subproblem)
 
